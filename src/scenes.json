@@ -1,0 +1,10 @@
+{
+  "title": "فكرة تستحق أن تُروى",
+  "palette": {"background":"#081d1b","panel":"#123d38","accent":"#e3bf79","text":"#fff8ec"},
+  "scenes": [
+    {"heading":"كل فكرة","subheading":"لها حكاية تستحق أن تُروى","variant":"orbit","frames":120},
+    {"heading":"من الكلمات","subheading":"إلى مشاهد تنبض بالحياة","variant":"path","frames":120},
+    {"heading":"إخراج عربي أصيل","subheading":"حركة دقيقة • خطوط واضحة","variant":"rings","frames":120},
+    {"heading":"هذه هي البداية","subheading":"استوديو Gemini + Remotion","variant":"reveal","frames":90}
+  ]
+}

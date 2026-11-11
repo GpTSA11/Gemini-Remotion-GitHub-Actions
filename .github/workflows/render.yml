@@ -1,0 +1,47 @@
+name: Render Arabic Demo
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Optional Arabic video topic (requires GEMINI_API_KEY secret)'
+        required: false
+        type: string
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install fonts and video dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-core fonts-hosny-amiri ffmpeg
+          fc-cache -f
+      - name: Install Node packages
+        run: npm install --no-audit --no-fund
+      - name: Generate storyboard with Gemini when topic entered
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          VIDEO_TOPIC: ${{ inputs.topic }}
+        run: npm run gemini
+      - name: Validate scene data
+        run: npm test
+      - name: Render MP4
+        run: mkdir -p out && npx remotion render src/index.ts MainVideo out/video.mp4 --codec h264 --crf 20 --concurrency 2
+      - name: Inspect rendered MP4
+        run: |
+          test -s out/video.mp4
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 out/video.mp4
+      - name: Save downloadable video
+        uses: actions/upload-artifact@v4
+        with:
+          name: arabic-motion-video
+          path: out/video.mp4
+          retention-days: 7

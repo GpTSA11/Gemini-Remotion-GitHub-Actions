@@ -1,0 +1,22 @@
+{
+  "name": "gemini-remotion-studio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts MainVideo out/video.mp4 --codec h264 --crf 20",
+    "compositions": "remotion compositions src/index.ts",
+    "gemini": "node scripts/generate.mjs",
+    "test": "node scripts/validate.mjs"
+  },
+  "dependencies": {
+    "@google/genai": "^1.28.0",
+    "@remotion/cli": "4.0.381",
+    "remotion": "4.0.381",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {"typescript":"^5.9.3"}
+}

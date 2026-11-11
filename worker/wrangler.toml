@@ -1,0 +1,6 @@
+name = "gemini-motion-studio-api"
+main = "index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://gptsa11.github.io"

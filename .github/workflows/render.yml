@@ -1,11 +1,40 @@
 name: Render Arabic Demo
+run-name: studio-${{ inputs.request_id || 'demo' }}
 on:
   push:
     branches: [main]
   workflow_dispatch:
     inputs:
       topic:
-        description: 'Optional Arabic video topic (requires GEMINI_API_KEY secret)'
+        description: 'Arabic topic; requires GEMINI_API_KEY secret'
+        required: false
+        type: string
+      duration:
+        description: 'Duration in seconds'
+        required: false
+        type: choice
+        default: '15'
+        options: ['15', '30', '60']
+      aspect:
+        description: 'Video orientation'
+        required: false
+        type: choice
+        default: vertical
+        options: [vertical, horizontal]
+      style:
+        description: 'Visual storytelling style'
+        required: false
+        type: choice
+        default: auto
+        options: [auto, educational, cinematic, infographic, sports, calm]
+      voice:
+        description: 'Voice preference only; audio synthesis not implemented'
+        required: false
+        type: choice
+        default: none
+        options: [none, male, female]
+      request_id:
+        description: 'Studio request tracking UUID'
         required: false
         type: string
 permissions:
@@ -13,7 +42,7 @@ permissions:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,15 +59,23 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           VIDEO_TOPIC: ${{ inputs.topic }}
+          VIDEO_DURATION: ${{ inputs.duration }}
+          VIDEO_STYLE: ${{ inputs.style }}
+          VOICE_PREFERENCE: ${{ inputs.voice }}
         run: npm run gemini
       - name: Validate scene data
         run: npm test
       - name: Render MP4
-        run: mkdir -p out && npx remotion render src/index.ts MainVideo out/video.mp4 --codec h264 --crf 20 --concurrency 2
+        env:
+          VIDEO_ASPECT: ${{ inputs.aspect }}
+        run: |
+          mkdir -p out
+          if [ "$VIDEO_ASPECT" = "horizontal" ]; then COMPOSITION=HorizontalVideo; else COMPOSITION=MainVideo; fi
+          npx remotion render src/index.ts "$COMPOSITION" out/video.mp4 --codec h264 --crf 20 --concurrency 2
       - name: Inspect rendered MP4
         run: |
           test -s out/video.mp4
-          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 out/video.mp4
+          ffprobe -v error -show_entries stream=width,height -show_entries format=duration -of default=noprint_wrappers=1 out/video.mp4
       - name: Save downloadable video
         uses: actions/upload-artifact@v4
         with:
